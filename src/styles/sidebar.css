@@ -141,8 +141,8 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#28c76f",endCo
 .readmore-cont{
     margin-top: 100px;
     margin-left: 50px;
-    overflow: auto;
-    overflow-y: scroll;
+    /* overflow: auto;
+    overflow-y: scroll; */
 }
 .readmore-text{
     font-size: 18px;

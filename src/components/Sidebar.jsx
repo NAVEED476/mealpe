@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAllRecipes,
@@ -7,53 +7,9 @@ import {
   selectError,
   selectRecipe as selectRecipeAction,
   selectSelectedRecipe,
-  toggleFavorite as toggleFavoriteAction,
+  toggleFavorite,
 } from "../redux/recipesSlice";
-import { useDrag, useDrop } from "react-dnd";
-
 import "../styles/sidebar.css";
-
-export const ItemTypes = {
-  RECIPE: 'recipe', 
-};
-
-const RecipeItem = ({ recipe, index, moveRecipe }) => {
-  const dispatch = useDispatch();
-  const [, drag] = useDrag({
-    item: { type: ItemTypes.RECIPE, index },
-  });
-
-  const [, drop] = useDrop({
-    accept: ItemTypes.RECIPE,
-    hover(item, monitor) {
-      if (!draggedItem) {
-        return;
-      }
-      const dragIndex = item.index;
-      const hoverIndex = index;
-
-      if (dragIndex === hoverIndex) {
-        return;
-      }
-
-      moveRecipe(dragIndex, hoverIndex);
-      item.index = hoverIndex;
-    },
-  });
-
-  const opacity = isDragging ? 0.5 : 1;
-
-  return (
-    <div ref={(node) => drag(drop(node))} style={{ opacity }}>
-      <div
-        className="recipe-item"
-        onClick={() => dispatch(selectRecipeAction(recipe))}
-      >
-        <h4 className="recipe-name">{recipe.strMeal}</h4>
-      </div>
-    </div>
-  );
-};
 
 const Sidebar = () => {
   const [readmore, setReadmore] = useState(false);
@@ -62,16 +18,20 @@ const Sidebar = () => {
   const status = useSelector(selectStatus);
   const error = useSelector(selectError);
   const selectedRecipe = useSelector(selectSelectedRecipe);
+  const favoriteRecipes = useSelector((state) => state.recipeReducer.favoriteRecipes);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     dispatch(fetchAllRecipes());
   }, [dispatch]);
 
-  const handleRecipeClick = (recipe) => {
-    dispatch(selectRecipeAction(recipe));
-    setReadmore(false); // Reset readmore state when a new recipe is selected
-  };
+  const handleRecipeClick = useCallback(
+    (recipe) => {
+      dispatch(selectRecipeAction(recipe));
+      setReadmore(false); 
+    },
+    [dispatch]
+  );
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
@@ -82,20 +42,16 @@ const Sidebar = () => {
   };
 
   const handleToggleFavorite = () => {
-    dispatch(toggleFavoriteAction(selectedRecipe));
+    if (selectedRecipe) {
+      dispatch(toggleFavorite(selectedRecipe)); 
+    }
   };
 
   const filteredRecipes = recipes.filter((recipe) =>
     recipe.strMeal.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const moveRecipe = (dragIndex, hoverIndex) => {
-    const draggedRecipe = recipes[dragIndex];
-    const updatedRecipes = [...recipes];
-    updatedRecipes.splice(dragIndex, 1);
-    updatedRecipes.splice(hoverIndex, 0, draggedRecipe);
-    // Update recipes in Redux store
-  };
+  const isFavorite = selectedRecipe && favoriteRecipes.some((recipe) => recipe.idMeal === selectedRecipe.idMeal);
 
   return (
     <div className="sidebar-cont">
@@ -113,13 +69,14 @@ const Sidebar = () => {
           {status === "loading" && <p className="loading">Loading...</p>}
           {status === "failed" && <p>Error: {error}</p>}
           {status === "succeeded" && filteredRecipes.length > 0 ? (
-            filteredRecipes.map((recipe, index) => (
-              <RecipeItem
+            filteredRecipes.map((recipe) => (
+              <div
                 key={recipe.idMeal}
-                recipe={recipe}
-                index={index}
-                moveRecipe={moveRecipe}
-              />
+                className="recipe-item"
+                onClick={() => handleRecipeClick(recipe)}
+              >
+                <h4 className="recipe-name">{recipe.strMeal}</h4>
+              </div>
             ))
           ) : (
             <p className="loading">Recipes not Found</p>
@@ -128,7 +85,7 @@ const Sidebar = () => {
       </div>
       <div className="right-side-cont">
         {!selectedRecipe ? (
-          <h1 className="please-select">please select recipe from left Side</h1>
+          <h1 className="please-select">Please select a recipe from the left side</h1>
         ) : (
           <div className="selected-recipe">
             <div>
@@ -151,7 +108,7 @@ const Sidebar = () => {
                 </p>
               )}
               <button className="add-to-fav-btn" onClick={handleToggleFavorite}>
-                Add to Favorite
+                {isFavorite ? "Remove from Favorite" : "Add to Favorite"}
               </button>
             </div>
           </div>

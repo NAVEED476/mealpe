@@ -1,4 +1,3 @@
-
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import toast from 'react-hot-toast';
 
@@ -33,6 +32,10 @@ const recipesSlice = createSlice({
         toast.success("Added to favorites");
       }
     },
+    removeFavorite: (state, action) => {
+      state.favoriteRecipes = state.favoriteRecipes.filter(r => r.idMeal !== action.payload.idMeal);
+      toast.success("Removed from favorites");
+    },
     reorderRecipes: (state, action) => {
       state.recipes = action.payload;
     },
@@ -53,10 +56,11 @@ const recipesSlice = createSlice({
   },
 });
 
-export const { selectRecipe, toggleFavorite, reorderRecipes } = recipesSlice.actions;
+export const { selectRecipe, toggleFavorite, removeFavorite, reorderRecipes } = recipesSlice.actions;
 export const selectRecipes = (state) => state.recipeReducer.recipes;
 export const selectStatus = (state) => state.recipeReducer.status;
 export const selectError = (state) => state.recipeReducer.error;
 export const selectSelectedRecipe = (state) => state.recipeReducer.selectedRecipe;
+export const selectFavoriteRecipes = (state) => state.recipeReducer.favoriteRecipes;
 
 export default recipesSlice.reducer;
