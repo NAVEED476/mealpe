@@ -1,8 +1,15 @@
 // src/components/Sidebar.js
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllRecipes, selectRecipes, selectStatus, selectError, selectRecipe as selectRecipeAction } from "../redux/recipesSlice";
+import {
+  fetchAllRecipes,
+  selectRecipes,
+  selectStatus,
+  selectError,
+  selectRecipe as selectRecipeAction,
+} from "../redux/recipesSlice";
 import "../styles/navbar.css";
+import "../styles/sidebar.css";
 
 const Sidebar = () => {
   const dispatch = useDispatch();
@@ -28,13 +35,18 @@ const Sidebar = () => {
         />
       </div>
       <div className="recipes-list">
-        {status === 'loading' && <p>Loading...</p>}
-        {status === 'failed' && <p>Error: {error}</p>}
-        {status === 'succeeded' && recipes.map((recipe) => (
-          <div key={recipe.idMeal} className="recipe-item" onClick={() => handleRecipeClick(recipe)}>
-            {recipe.strMeal}
-          </div>
-        ))}
+        {status === "loading" && <p className="loading">Loading...</p>}
+        {status === "failed" && <p>Error: {error}</p>}
+        {status === "succeeded" &&
+          recipes.map((recipe) => (
+            <div
+              key={recipe.idMeal}
+              className="recipe-item"
+              onClick={() => handleRecipeClick(recipe)}
+            >
+              <h4 className="recipe-name"> {recipe.strMeal}</h4>
+            </div>
+          ))}
       </div>
     </div>
   );
