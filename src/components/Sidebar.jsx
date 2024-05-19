@@ -1,5 +1,5 @@
-// src/components/Sidebar.js
-import React, { useEffect } from "react";
+
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAllRecipes,
@@ -16,6 +16,7 @@ const Sidebar = () => {
   const recipes = useSelector(selectRecipes);
   const status = useSelector(selectStatus);
   const error = useSelector(selectError);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     dispatch(fetchAllRecipes());
@@ -25,6 +26,14 @@ const Sidebar = () => {
     dispatch(selectRecipeAction(recipe));
   };
 
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const filteredRecipes = recipes.filter((recipe) =>
+    recipe.strMeal.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="sidebar-cont">
       <div className="search-cont">
@@ -32,21 +41,23 @@ const Sidebar = () => {
           className="search-box"
           type="text"
           placeholder="search recipe here"
+          value={searchQuery}
+          onChange={handleSearchChange}
         />
       </div>
       <div className="recipes-list">
         {status === "loading" && <p className="loading">Loading...</p>}
         {status === "failed" && <p>Error: {error}</p>}
         {status === "succeeded" &&
-          recipes.map((recipe) => (
+          filteredRecipes.length > 0 ? filteredRecipes .map((recipe) => (
             <div
               key={recipe.idMeal}
               className="recipe-item"
               onClick={() => handleRecipeClick(recipe)}
             >
-              <h4 className="recipe-name"> {recipe.strMeal}</h4>
+              <h4 className="recipe-name">{recipe.strMeal}</h4>
             </div>
-          ))}
+          )):<p className="loading">Recipies not Found</p>}
       </div>
     </div>
   );
