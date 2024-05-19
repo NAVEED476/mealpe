@@ -1,6 +1,7 @@
 import React from "react";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
+import "./landing.css";
 
 const Landing = () => {
   return (
@@ -8,7 +9,7 @@ const Landing = () => {
       <div>
         <Navbar />
       </div>
-      <div>
+      <div className="main-sidebar-cont">
         <Sidebar/>
       </div>
     </div>

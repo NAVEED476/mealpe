@@ -1,4 +1,4 @@
-// src/redux/recipesSlice.js
+
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import toast from 'react-hot-toast';
 
@@ -53,11 +53,10 @@ const recipesSlice = createSlice({
   },
 });
 
-// Selectors
+export const { selectRecipe, toggleFavorite, reorderRecipes } = recipesSlice.actions;
 export const selectRecipes = (state) => state.recipeReducer.recipes;
-export const selectRecipe = (state) => state.recipeReducer.selectedRecipe;
 export const selectStatus = (state) => state.recipeReducer.status;
 export const selectError = (state) => state.recipeReducer.error;
+export const selectSelectedRecipe = (state) => state.recipeReducer.selectedRecipe;
 
-export const { selectRecipe: selectRecipeAction, toggleFavorite, reorderRecipes } = recipesSlice.actions;
 export default recipesSlice.reducer;
